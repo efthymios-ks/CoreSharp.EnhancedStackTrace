@@ -1,0 +1,51 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35303.130
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AC7D71C9-56C1-4DC3-B184-31ADBF02D038}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		Directory.Build.props = Directory.Build.props
+		finecodecoverage-settings.xml = finecodecoverage-settings.xml
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreSharp.EnhancedStackTrace", "CoreSharp.EnhancedStackTrace\CoreSharp.EnhancedStackTrace.csproj", "{10A3B353-344B-4668-871F-91F616C265DF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreSharp.EnhancedStackTrace.Tests", "CoreSharp.EnhancedStackTrace.Tests\CoreSharp.EnhancedStackTrace.Tests.csproj", "{8101C2E8-5FA2-4470-8491-E99052E2ACDE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreSharp.EnhancedStackTrace.Tests.Common", "CoreSharp.EnhancedStackTrace.Tests.Common\CoreSharp.EnhancedStackTrace.Tests.Common.csproj", "{31E01ECD-BED6-47F2-A297-120098550FCE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreSharp.EnhancedStackTrace.App", "CoreSharp.EnhancedStackTrace.App\CoreSharp.EnhancedStackTrace.App.csproj", "{8542CE82-948C-448E-BA73-4E227CE89BE9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{10A3B353-344B-4668-871F-91F616C265DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10A3B353-344B-4668-871F-91F616C265DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10A3B353-344B-4668-871F-91F616C265DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10A3B353-344B-4668-871F-91F616C265DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8101C2E8-5FA2-4470-8491-E99052E2ACDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8101C2E8-5FA2-4470-8491-E99052E2ACDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8101C2E8-5FA2-4470-8491-E99052E2ACDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8101C2E8-5FA2-4470-8491-E99052E2ACDE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31E01ECD-BED6-47F2-A297-120098550FCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31E01ECD-BED6-47F2-A297-120098550FCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31E01ECD-BED6-47F2-A297-120098550FCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31E01ECD-BED6-47F2-A297-120098550FCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8542CE82-948C-448E-BA73-4E227CE89BE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8542CE82-948C-448E-BA73-4E227CE89BE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8542CE82-948C-448E-BA73-4E227CE89BE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8542CE82-948C-448E-BA73-4E227CE89BE9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A6379308-1B80-4B67-90B7-91E291C379FA}
+	EndGlobalSection
+EndGlobal

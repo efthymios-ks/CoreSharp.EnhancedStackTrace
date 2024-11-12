@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup Label="Package">
+		<OutputType>Exe</OutputType>
+		<DebugType>portable</DebugType>
+	</PropertyGroup>
+
+	<ItemGroup Label="Project references">
+		<ProjectReference Include="..\CoreSharp.EnhancedStackTrace\CoreSharp.EnhancedStackTrace.csproj" />
+	</ItemGroup>
+
+</Project>

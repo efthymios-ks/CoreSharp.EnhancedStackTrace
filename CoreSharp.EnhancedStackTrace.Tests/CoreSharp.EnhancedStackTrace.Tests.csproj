@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup Label="Package">
+		<TargetFramework>net8.0</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup Label="Package references">
+		<ProjectReference Include="..\CoreSharp.EnhancedStackTrace.Tests.Common\CoreSharp.EnhancedStackTrace.Tests.Common.csproj" />
+		<ProjectReference Include="..\CoreSharp.EnhancedStackTrace\CoreSharp.EnhancedStackTrace.csproj" />
+	</ItemGroup>
+</Project>
