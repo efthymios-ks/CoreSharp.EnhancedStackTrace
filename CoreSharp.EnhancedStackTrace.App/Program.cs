@@ -4,7 +4,7 @@ using CoreSharp.EnhancedStackTrace.Extensions;
 try
 {
     // TODO: LINQ, Enumerators
-    ExceptionThrow.ConstructorStatic();
+    ExceptionThrow.IndexerSet();
 }
 catch (Exception exception)
 {

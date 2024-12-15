@@ -32,6 +32,7 @@
     - `params` collections
     - Default values
 - `Tasks`
+- Indexers
 
 ## Installation
 Install the package with [Nuget](https://www.nuget.org/packages/CoreSharp.EnhancedStackTrace/).  

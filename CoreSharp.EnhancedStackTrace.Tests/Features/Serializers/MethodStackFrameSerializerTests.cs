@@ -134,6 +134,22 @@ internal sealed class MethodStackFrameSerializerTests : TestsBase
                 FileName = "MyFile",
                 LineNumber = 10,
                 ExpectedToString = "void CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.MethodStackFrameSerializerTests+ToStringTestArgs.MethodWithArguments(int _) in MyFile:line 10"
+            },
+            new()
+            {
+                Label = "IndexerGet",
+                ThrowErrorFactory = () => _ = new ClassWithIndexer()[0],
+                FileName = "MyFile",
+                LineNumber = 10,
+                ExpectedToString = "int CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.MethodStackFrameSerializerTests+ToStringTestArgs+ClassWithIndexer[int index] in MyFile:line 10"
+            },
+            new()
+            {
+                Label = "IndexerSet",
+                ThrowErrorFactory = () => new ClassWithIndexer()[0] = default,
+                FileName = "MyFile",
+                LineNumber = 10,
+                ExpectedToString = "void CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.MethodStackFrameSerializerTests+ToStringTestArgs+ClassWithIndexer[int index, int value] in MyFile:line 10"
             }
         ];
 
@@ -157,5 +173,13 @@ internal sealed class MethodStackFrameSerializerTests : TestsBase
         private static void MethodWithArguments(int _)
             => throw new Exception();
 
+        private sealed class ClassWithIndexer
+        {
+            public int this[int index]
+            {
+                get => throw new Exception();
+                set => throw new Exception();
+            }
+        }
     }
 }

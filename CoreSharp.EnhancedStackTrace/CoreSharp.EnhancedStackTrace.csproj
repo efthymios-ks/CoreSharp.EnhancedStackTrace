@@ -2,11 +2,11 @@
 
 	<PropertyGroup Label="Package">
 		<Title>CoreSharp.EnhancedStackTrace</Title>
-		<Version>8.0.0</Version>
+		<Version>8.0.1</Version>
 		<Authors>Efthymios Koktsidis</Authors>
 		<Company>Efthymios Koktsidis</Company>
 		<Description>Enhanced stack trace and more.</Description>
-		<PackageReleaseNotes>-Release.</PackageReleaseNotes>
+		<PackageReleaseNotes>-Added class indexer support.</PackageReleaseNotes>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageProjectUrl>https://github.com/efthymios-ks/CoreSharp.EnhancedStackTrace</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/efthymios-ks/CoreSharp.EnhancedStackTrace</RepositoryUrl>
