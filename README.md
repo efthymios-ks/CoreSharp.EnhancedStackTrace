@@ -12,7 +12,7 @@
 - Types
     - Simplified `System` type aliases
 	- `Nullable` types
-	- Simplifid `ValueTuples` with argument names
+	- Simplified `ValueTuples` with argument names
 - Methods
     - Local methods
 	- `ref` return type
