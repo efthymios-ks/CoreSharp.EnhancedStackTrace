@@ -1,27 +1,28 @@
 ﻿using CoreSharp.EnhancedStackTrace.Features.Reflection;
-using NSubstitute;
 using System.Collections;
+using Tests.Common.Mocks;
 
 namespace CoreSharp.EnhancedStackTrace.Tests.Features.Reflection;
 
-internal partial class TypeAliasProviderTests : TestsBase
+public sealed partial class TypeAliasProviderTests : TestsBase
 {
-    [Test]
+    [Fact]
     public void GetAlias_WhenTypeIsNull_ShouldThrowArgumentNullException()
     {
         // Arrange
         var provider = MockCreate<TypeAliasProvider>();
 
         // Act
-        Action action = () => provider.GetAlias(type: null!);
+        void Action()
+            => provider.GetAlias(type: null!);
 
         // Assert
-        action.Should().ThrowExactly<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
-    [TestCase(typeof(int), false)]
-    [TestCase(typeof(int?), true)]
+    [Theory]
+    [InlineData(typeof(int), false)]
+    [InlineData(typeof(int?), true)]
     public void GetAlias_WhenTypeIsNullable_ShouldContainQuestionMark(Type inputType, bool shouldContainQuestionMark)
     {
         // Arrange
@@ -32,12 +33,12 @@ internal partial class TypeAliasProviderTests : TestsBase
         var result = provider.GetAlias(type);
 
         // Assert
-        result.EndsWith('?').Should().Be(shouldContainQuestionMark);
+        Assert.Equal(shouldContainQuestionMark, result.EndsWith('?'));
     }
 
-    [Test]
-    [TestCase(typeof(string[]), "string[]")]
-    [TestCase(typeof(string[,]), "string[,]")]
+    [Theory]
+    [InlineData(typeof(string[]), "string[]")]
+    [InlineData(typeof(string[,]), "string[,]")]
     public void GetAlias_WhenTypeIsArray_ShouldReturnArrayAlias(Type inputType, string expectedAlias)
     {
         // Arrange
@@ -47,12 +48,12 @@ internal partial class TypeAliasProviderTests : TestsBase
         var result = provider.GetAlias(inputType);
 
         // Assert
-        result.Should().Contain(expectedAlias);
+        Assert.Contains(expectedAlias, result);
     }
 
-    [Test]
-    [TestCase(typeof(IList<int>), "IList<int>")]
-    [TestCase(typeof(List<int>), "List<int>")]
+    [Theory]
+    [InlineData(typeof(IList<int>), "IList<int>")]
+    [InlineData(typeof(List<int>), "List<int>")]
     public void GetAlias_WhenTypeIsGeneric_ShouldReturnGenericAlias(Type inputType, string expectedAlias)
     {
         // Arrange
@@ -62,10 +63,10 @@ internal partial class TypeAliasProviderTests : TestsBase
         var result = provider.GetAlias(inputType);
 
         // Assert
-        result.Should().Contain(expectedAlias);
+        Assert.Contains(expectedAlias, result);
     }
 
-    [Test]
+    [Fact]
     public void GetAlias_WhenTypeIsByRef_ShouldReturnBaseElementTypeAlias()
     {
         // Arrange 
@@ -76,13 +77,13 @@ internal partial class TypeAliasProviderTests : TestsBase
         var result = provider.GetAlias(type);
 
         // Assert
-        result.Should().Contain("int");
-        result.Should().NotContain("&");
+        Assert.Contains("int", result);
+        Assert.DoesNotContain("&", result);
     }
 
-    [Test]
-    [TestCase(typeof(int), "int")]
-    [TestCase(typeof(double), "double")]
+    [Theory]
+    [InlineData(typeof(int), "int")]
+    [InlineData(typeof(double), "double")]
     public void GetAlias_WhenTypeHasConstantOverride_ShouldOverridentAlias(Type inputType, string expectedAlias)
     {
         // Arrange
@@ -92,13 +93,13 @@ internal partial class TypeAliasProviderTests : TestsBase
         var result = provider.GetAlias(inputType);
 
         // Assert
-        result.Should().Be(expectedAlias);
+        Assert.Equal(expectedAlias, result);
     }
 
-    [Test]
-    [TestCase(typeof(IList), "IList")]
-    [TestCase(typeof(IList<>), "IList<T>")]
-    [TestCase(typeof(List<>), "List<T>")]
+    [Theory]
+    [InlineData(typeof(IList), "IList")]
+    [InlineData(typeof(IList<>), "IList<T>")]
+    [InlineData(typeof(List<>), "List<T>")]
     public void GetAlias_WhenTypeIsUnderSystemNamespace_ShouldReturnTypeName(Type inputType, string expectedAlias)
     {
         // Arrange
@@ -121,10 +122,10 @@ internal partial class TypeAliasProviderTests : TestsBase
         var result = provider.GetAlias(inputType);
 
         // Assert
-        result.Should().Be(expectedAlias);
+        Assert.Equal(expectedAlias, result);
     }
 
-    [Test]
+    [Fact]
     public void GetAlias_WhenTypeFullNameIsNull_ShouldReturnName()
     {
         // Arrange
@@ -153,10 +154,10 @@ internal partial class TypeAliasProviderTests : TestsBase
         var result = provider.GetAlias(type);
 
         // Assert
-        result.Should().Be("Name");
+        Assert.Equal("Name", result);
     }
 
-    [Test]
+    [Fact]
     public void GetAlias_WhenTypeFullNameIsNotNull_ShouldReturnFullName()
     {
         // Arrange
@@ -185,10 +186,10 @@ internal partial class TypeAliasProviderTests : TestsBase
         var result = provider.GetAlias(type);
 
         // Assert
-        result.Should().Be("FullName");
+        Assert.Equal("FullName", result);
     }
 
-    [Test]
+    [Fact]
     public void GetAlias_WhenTypeIsSubMethod_ShouldReturnTypeNameAndSubMethod()
     {
         // Arrange
@@ -212,6 +213,6 @@ internal partial class TypeAliasProviderTests : TestsBase
         var result = provider.GetAlias(type);
 
         // Assert
-        result.Should().Be("Method.SubMethod");
+        Assert.Equal("Method.SubMethod", result);
     }
 }

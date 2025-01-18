@@ -1,6 +1,7 @@
-﻿using System.Reflection;
+﻿using System.Globalization;
+using System.Reflection;
 
-namespace CoreSharp.EnhancedStackTrace.Tests.MockTypes;
+namespace Tests.Common.Mocks;
 
 public sealed class MockFieldInfo : FieldInfo
 {

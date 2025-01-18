@@ -1,20 +1,20 @@
 ﻿using CoreSharp.EnhancedStackTrace.Extensions;
-using SystemStackTrace = System.Diagnostics.StackTrace;
 
 namespace CoreSharp.EnhancedStackTrace.Tests.Features.Factory;
 
-internal sealed class EnhancedStackTraceFactoryTests : TestsBase
+public sealed class EnhancedStackTraceFactoryTests : TestsBase
 {
-    [Test]
+    [Fact]
     public void Create_WhenExceptionIsNull_ShouldThrowArgumentNullException()
     {
         // Arrange 
         Exception exception = null!;
 
         // Act
-        Action action = () => exception.Enhance();
+        void Action()
+            => exception.Enhance();
 
         // Assert
-        action.Should().ThrowExactly<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 }

@@ -1,24 +1,26 @@
 ﻿using CoreSharp.EnhancedStackTrace.Features.Reflection;
 using System.Diagnostics;
+using Tests.Common.Mocks;
 
 namespace CoreSharp.EnhancedStackTrace.Tests.Features.Reflection;
 
-internal sealed class ReflectionHelperTests : TestsBase
+public sealed class ReflectionHelperTests : TestsBase
 {
-    [Test]
+    [Fact]
     public void IsHiddenInStackTrace_WhenMethodBaseIsNull_ShouldThrowArgumentNullException()
     {
         // Arrange
         var helper = new ReflectionHelper();
 
         // Act
-        Action action = () => helper.IsHiddenInStackTrace(methodBase: null!);
+        void Action()
+            => helper.IsHiddenInStackTrace(methodBase: null!);
 
         // Assert
-        action.Should().ThrowExactly<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
+    [Fact]
     public void IsHiddenInStackTrace_WhenMethodBaseHasNoStackTraceHiddenAttribute_ShouldReturnFalse()
     {
         // Arrange
@@ -30,10 +32,10 @@ internal sealed class ReflectionHelperTests : TestsBase
         var result = helper.IsHiddenInStackTrace(methodBase);
 
         // Assert
-        result.Should().BeFalse();
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void IsHiddenInStackTrace_WhenMethodBaseHasStackTraceHiddenAttribute_ShouldReturnTrue()
     {
         // Arrange
@@ -45,40 +47,42 @@ internal sealed class ReflectionHelperTests : TestsBase
         var result = helper.IsHiddenInStackTrace(methodBase);
 
         // Assert
-        result.Should().BeTrue();
+        Assert.True(result);
     }
 
-    [Test]
+    [Fact]
     public void DeconstructorMethodName_WhenRawMethodNameIsNull_ShouldThrowArgumentNullException()
     {
         // Arrange
         var helper = new ReflectionHelper();
 
         // Act
-        Action action = () => helper.DeconstructMethodName(rawMethodName: null!);
+        void Action()
+            => helper.DeconstructMethodName(rawMethodName: null!);
 
         // Assert
-        action.Should().ThrowExactly<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
-    [TestCase("")]
-    [TestCase(" ")]
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
     public void DeconstructorMethodName_WhenRawMethodNameIsEmpty_ShouldThrowArgumentException(string rawMethodName)
     {
         // Arrange
         var helper = new ReflectionHelper();
 
         // Act
-        Action action = () => helper.DeconstructMethodName(rawMethodName);
+        void Action()
+            => helper.DeconstructMethodName(rawMethodName);
 
         // Assert
-        action.Should().ThrowExactly<ArgumentException>();
+        Assert.Throws<ArgumentException>(Action);
     }
 
-    [Test]
-    [TestCaseSource(typeof(DeconstructMethodNameTestArgs), nameof(DeconstructMethodNameTestArgs.Source))]
-    public void DeconstructorMethodName_WhenCalled_ShouldReturnCorrectValues(DeconstructMethodNameTestArgs arguments)
+    [Theory]
+    [MemberData(nameof(DeconstructMethodNameTestArgs.Source), MemberType = typeof(DeconstructMethodNameTestArgs))]
+    public void DeconstructMethodName_WhenCalled_ShouldReturnCorrectValues(DeconstructMethodNameTestArgs arguments)
     {
         // Arrange
         var helper = new ReflectionHelper();
@@ -87,25 +91,26 @@ internal sealed class ReflectionHelperTests : TestsBase
         var (methodName, subMethodName, subMethodIdentifier) = helper.DeconstructMethodName(arguments.RawMethodName);
 
         // Assert
-        methodName.Should().Be(arguments.ExpectedMethodName);
-        subMethodName.Should().Be(arguments.ExpectedSubMethodName);
-        subMethodIdentifier.Should().Be(arguments.ExpectedSubMethodIdentifier);
+        Assert.Equal(arguments.ExpectedMethodName, methodName);
+        Assert.Equal(arguments.ExpectedSubMethodName, subMethodName);
+        Assert.Equal(arguments.ExpectedSubMethodIdentifier, subMethodIdentifier);
     }
 
-    [Test]
+    [Fact]
     public void IsTuple_WhenTypeIsNull_ShouldThrowArgumentNullException()
     {
         // Arrange
         var helper = new ReflectionHelper();
 
         // Act
-        Action action = () => helper.IsTuple(type: null!);
+        void Action()
+            => helper.IsTuple(type: null!);
 
         // Assert
-        action.Should().ThrowExactly<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
+    [Fact]
     public void IsTuple_WhenCalledWithArgumentCountAndTypeIsNull_ShouldThrowArgumentNullException()
     {
         // Arrange
@@ -113,13 +118,14 @@ internal sealed class ReflectionHelperTests : TestsBase
         Type type = null!;
 
         // Act
-        Action action = () => helper.IsTuple(type, argumentCount: 1);
+        void Action()
+            => helper.IsTuple(type, argumentCount: 1);
 
         // Assert
-        action.Should().ThrowExactly<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
+    [Fact]
     public void IsTuple_WhenTypeIsNotGeneric_ShouldReturnFalse()
     {
         // Arrange
@@ -130,10 +136,10 @@ internal sealed class ReflectionHelperTests : TestsBase
         var result = helper.IsTuple(type);
 
         // Assert
-        result.Should().BeFalse();
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void IsTuple_WhenTypeIsNotTuple_ShouldReturnFalse()
     {
         // Arrange
@@ -144,10 +150,10 @@ internal sealed class ReflectionHelperTests : TestsBase
         var result = helper.IsTuple(type);
 
         // Assert
-        result.Should().BeFalse();
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void IsTuple_WhenTypeGenericTypeDefinitionFullNameIsNull_ShouldReturnFalse()
     {
         // Arrange
@@ -165,10 +171,10 @@ internal sealed class ReflectionHelperTests : TestsBase
         var result = helper.IsTuple(type);
 
         // Assert
-        result.Should().BeFalse();
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void IsTuple_WhenTypeIsTuple_ShouldReturnTrue()
     {
         // Arrange
@@ -179,10 +185,10 @@ internal sealed class ReflectionHelperTests : TestsBase
         var result = helper.IsTuple(type);
 
         // Assert
-        result.Should().BeTrue();
+        Assert.True(result);
     }
 
-    [Test]
+    [Fact]
     public void IsTuple_WhenCalledWithArgumentCountAndTypeIsNotTuple_ShouldReturnFalse()
     {
         // Arrange
@@ -193,10 +199,10 @@ internal sealed class ReflectionHelperTests : TestsBase
         var result = helper.IsTuple(type, argumentCount: 1);
 
         // Assert
-        result.Should().BeFalse();
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void IsTuple_WhenCalledWithArgumentCountAndCountIsWrong_ShouldReturnFalse()
     {
         // Arrange
@@ -207,10 +213,10 @@ internal sealed class ReflectionHelperTests : TestsBase
         var result = helper.IsTuple(type, argumentCount: 2);
 
         // Assert
-        result.Should().BeFalse();
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void IsTuple_WhenTypeIsTupleWithCorrectArgumentCount_ShouldReturnTrue()
     {
         // Arrange
@@ -221,36 +227,38 @@ internal sealed class ReflectionHelperTests : TestsBase
         var result = helper.IsTuple(type, argumentCount: 1);
 
         // Assert
-        result.Should().BeTrue();
+        Assert.True(result);
     }
 
-    [Test]
+    [Fact]
     public void IsValueTuple_WhenTypeIsNull_ShouldThrowArgumentNullException()
     {
         // Arrange
         var helper = new ReflectionHelper();
 
         // Act
-        Action action = () => helper.IsValueTuple(type: null!);
+        void Action()
+            => helper.IsValueTuple(type: null!);
 
         // Assert
-        action.Should().ThrowExactly<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
+    [Fact]
     public void IsValueTuple_WhenCalledWithArgumentCountAndTypeIsNull_ShouldThrowArgumentNullException()
     {
         // Arrange
         var helper = new ReflectionHelper();
 
         // Act
-        Action action = () => helper.IsValueTuple(type: null!, argumentCount: 1);
+        void Action()
+            => helper.IsValueTuple(type: null!, argumentCount: 1);
 
         // Assert
-        action.Should().ThrowExactly<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
+    [Fact]
     public void IsValueTuple_WhenTypeIsNotGeneric_ShouldReturnFalse()
     {
         // Arrange
@@ -261,10 +269,10 @@ internal sealed class ReflectionHelperTests : TestsBase
         var result = helper.IsValueTuple(type);
 
         // Assert
-        result.Should().BeFalse();
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void IsValueTuple_WhenTypeIsNotValueTuple_ShouldReturnFalse()
     {
         // Arrange
@@ -275,10 +283,10 @@ internal sealed class ReflectionHelperTests : TestsBase
         var result = helper.IsValueTuple(type);
 
         // Assert
-        result.Should().BeFalse();
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void IsValueTuple_WhenTypeGenericTypeDefinitionFullNameIsNull_ShouldReturnFalse()
     {
         // Arrange
@@ -296,10 +304,10 @@ internal sealed class ReflectionHelperTests : TestsBase
         var result = helper.IsValueTuple(type);
 
         // Assert
-        result.Should().BeFalse();
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void IsValueTuple_WhenTypeIsValueTuple_ShouldReturnTrue()
     {
         // Arrange
@@ -310,10 +318,10 @@ internal sealed class ReflectionHelperTests : TestsBase
         var result = helper.IsValueTuple(type);
 
         // Assert
-        result.Should().BeTrue();
+        Assert.True(result);
     }
 
-    [Test]
+    [Fact]
     public void IsValueTuple_WhenCalledWithArgumentCountAndTypeIsNotValueTuple_ShouldReturnFalse()
     {
         // Arrange
@@ -324,10 +332,10 @@ internal sealed class ReflectionHelperTests : TestsBase
         var result = helper.IsValueTuple(type, argumentCount: 1);
 
         // Assert
-        result.Should().BeFalse();
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void IsValueTuple_WhenCalledWithArgumentCountAndCountIsWrong_ShouldReturnFalse()
     {
         // Arrange
@@ -338,10 +346,10 @@ internal sealed class ReflectionHelperTests : TestsBase
         var result = helper.IsValueTuple(type, argumentCount: 2);
 
         // Assert
-        result.Should().BeFalse();
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void IsValueTuple_WhenTypeIsValueTupleWithCorrectArgumentCount_ShouldReturnTrue()
     {
         // Arrange
@@ -352,7 +360,7 @@ internal sealed class ReflectionHelperTests : TestsBase
         var result = helper.IsValueTuple(type, argumentCount: 1);
 
         // Assert
-        result.Should().BeTrue();
+        Assert.True(result);
     }
 
     public sealed class DeconstructMethodNameTestArgs
@@ -361,72 +369,92 @@ internal sealed class ReflectionHelperTests : TestsBase
         public string ExpectedMethodName { get; set; } = null!;
         public string? ExpectedSubMethodName { get; set; }
         public SubMethodIdentifier? ExpectedSubMethodIdentifier { get; set; }
-
-        public static IEnumerable<DeconstructMethodNameTestArgs> Source
+        public static IEnumerable<object[]> Source
         {
             get
             {
                 // Plain method
-                yield return new()
+                yield return new object[]
                 {
-                    RawMethodName = "MethodName",
-                    ExpectedMethodName = "MethodName",
-                    ExpectedSubMethodName = null,
-                    ExpectedSubMethodIdentifier = null
+                    new DeconstructMethodNameTestArgs
+                    {
+                        RawMethodName = "MethodName",
+                        ExpectedMethodName = "MethodName",
+                        ExpectedSubMethodName = null,
+                        ExpectedSubMethodIdentifier = null
+                    }
                 };
 
                 // Lambda
-                yield return new()
+                yield return new object[]
                 {
-                    RawMethodName = "<MethodName>b__SubMethod|1_0",
-                    ExpectedMethodName = "MethodName",
-                    ExpectedSubMethodName = "SubMethod",
-                    ExpectedSubMethodIdentifier = SubMethodIdentifier.LambdaMethod
+                    new DeconstructMethodNameTestArgs
+                    {
+                        RawMethodName = "<MethodName>b__SubMethod|1_0",
+                        ExpectedMethodName = "MethodName",
+                        ExpectedSubMethodName = "SubMethod",
+                        ExpectedSubMethodIdentifier = SubMethodIdentifier.LambdaMethod
+                    }
                 };
 
                 // Local function
-                yield return new()
+                yield return new object[]
                 {
-                    RawMethodName = "<MethodName>g__SubMethod|1_0",
-                    ExpectedMethodName = "MethodName",
-                    ExpectedSubMethodName = "SubMethod",
-                    ExpectedSubMethodIdentifier = SubMethodIdentifier.LocalFunction
+                    new DeconstructMethodNameTestArgs
+                    {
+                        RawMethodName = "<MethodName>g__SubMethod|1_0",
+                        ExpectedMethodName = "MethodName",
+                        ExpectedSubMethodName = "SubMethod",
+                        ExpectedSubMethodIdentifier = SubMethodIdentifier.LocalFunction
+                    }
                 };
 
                 // Auto-property backing field
-                yield return new()
+                yield return new object[]
                 {
-                    RawMethodName = "<MethodName>k__SubMethod|1_0",
-                    ExpectedMethodName = "MethodName",
-                    ExpectedSubMethodName = "SubMethod",
-                    ExpectedSubMethodIdentifier = SubMethodIdentifier.AutoPropertyBackingField
+                    new DeconstructMethodNameTestArgs
+                    {
+                        RawMethodName = "<MethodName>k__SubMethod|1_0",
+                        ExpectedMethodName = "MethodName",
+                        ExpectedSubMethodName = "SubMethod",
+                        ExpectedSubMethodIdentifier = SubMethodIdentifier.AutoPropertyBackingField
+                    }
                 };
 
                 // Program class
-                yield return new()
+                yield return new object[]
                 {
-                    RawMethodName = "<Program>$",
-                    ExpectedMethodName = "Program",
-                    ExpectedSubMethodName = null,
-                    ExpectedSubMethodIdentifier = null
+                    new DeconstructMethodNameTestArgs
+                    {
+                        RawMethodName = "<Program>$",
+                        ExpectedMethodName = "Program",
+                        ExpectedSubMethodName = null,
+                        ExpectedSubMethodIdentifier = null
+                    }
                 };
 
                 // Method without pipe char
-                yield return new()
+                yield return new object[]
                 {
-                    RawMethodName = "<MethodName>b__SubMethod",
-                    ExpectedMethodName = "MethodName",
-                    ExpectedSubMethodName = "SubMethod",
-                    ExpectedSubMethodIdentifier = SubMethodIdentifier.LambdaMethod
+                    new DeconstructMethodNameTestArgs
+                    {
+                        RawMethodName = "<MethodName>b__SubMethod",
+                        ExpectedMethodName = "MethodName",
+                        ExpectedSubMethodName = "SubMethod",
+                        ExpectedSubMethodIdentifier = SubMethodIdentifier.LambdaMethod
+                    }
                 };
 
                 // Unknown identifier
-                yield return new()
+                yield return new object[]
                 {
-                    RawMethodName = "<MethodName>0__SubMethod",
-                    ExpectedMethodName = "MethodName",
-                    ExpectedSubMethodName = "SubMethod",
-                    ExpectedSubMethodIdentifier = null
+                    new DeconstructMethodNameTestArgs
+                    {
+                        RawMethodName = "<MethodName>0__SubMethod",
+                        ExpectedMethodName = "MethodName",
+                        ExpectedSubMethodName = "SubMethod",
+                        ExpectedSubMethodIdentifier = null
+                    }
                 };
             }
         }

@@ -1,6 +1,7 @@
-﻿using System.Reflection;
+﻿using System.Globalization;
+using System.Reflection;
 
-namespace CoreSharp.EnhancedStackTrace.Tests.MockTypes;
+namespace Tests.Common.Mocks;
 
 public sealed class MockMethodInfo : MethodInfo
 {
@@ -58,10 +59,9 @@ public sealed class MockMethodInfo : MethodInfo
     public override MethodImplAttributes GetMethodImplementationFlags()
         => throw new NotImplementedException();
 
-    public override object? Invoke(object? obj, BindingFlags invokeAttr, Binder? binder, object?[]? parameters, CultureInfo? culture)
-        => throw new NotImplementedException();
-
     public override bool IsDefined(Type attributeType, bool inherit)
+        => throw new NotImplementedException();
+    public override object? Invoke(object? obj, BindingFlags invokeAttr, Binder? binder, object?[]? parameters, CultureInfo? culture)
         => throw new NotImplementedException();
     #endregion
 }

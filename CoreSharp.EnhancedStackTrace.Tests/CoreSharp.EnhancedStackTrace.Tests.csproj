@@ -5,7 +5,14 @@
 	</PropertyGroup>
 
 	<ItemGroup Label="Package references">
-		<ProjectReference Include="..\CoreSharp.EnhancedStackTrace.Tests.Common\CoreSharp.EnhancedStackTrace.Tests.Common.csproj" />
-		<ProjectReference Include="..\CoreSharp.EnhancedStackTrace\CoreSharp.EnhancedStackTrace.csproj" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0">
+			<TreatAsUsed>true</TreatAsUsed>
+		</PackageReference>
 	</ItemGroup>
+
+	<ItemGroup Label="Project references">
+		<ProjectReference Include="..\CoreSharp.EnhancedStackTrace\CoreSharp.EnhancedStackTrace.csproj" />
+		<ProjectReference Include="..\Tests.Common\Tests.Common.csproj" />
+	</ItemGroup>
+
 </Project>

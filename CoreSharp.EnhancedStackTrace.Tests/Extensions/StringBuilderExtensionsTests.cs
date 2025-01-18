@@ -3,22 +3,23 @@ using System.Text;
 
 namespace CoreSharp.EnhancedStackTrace.Tests.Extensions;
 
-internal class StringBuilderExtensionsTests
+public sealed class StringBuilderExtensionsTests
 {
-    [Test]
+    [Fact]
     public void AppendIfNotEmpty_WhenBuilderIsNull_ThrowsArgumentNullException()
     {
         // Arrange
         StringBuilder builder = null!;
 
         // Act
-        Action action = () => builder.AppendIfNotEmpty("valueToCheck", "value");
+        void Action()
+            => builder.AppendIfNotEmpty("valueToCheck", "value");
 
         // Assert
-        action.Should().Throw<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
+    [Fact]
     public void AppendIfNotEmpty_WhenCalled_ShouldReturnSameInstance()
     {
         // Arrange
@@ -28,13 +29,13 @@ internal class StringBuilderExtensionsTests
         var result = builder.AppendIfNotEmpty("valueToCheck", "value");
 
         // Assert
-        result.Should().BeSameAs(builder);
+        Assert.Same(builder, result);
     }
 
-    [Test]
-    [TestCase(null!)]
-    [TestCase("")]
-    [TestCase(" ")]
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
     public void AppendIfNotEmpty_WhenValueToCheckIsNull_ShouldReturnSameInstance(string valueToCheck)
     {
         // Arrange
@@ -46,23 +47,24 @@ internal class StringBuilderExtensionsTests
             .ToString();
 
         // Assert
-        result.Should().NotContain("value");
+        Assert.DoesNotContain("value", result);
     }
 
-    [Test]
+    [Fact]
     public void AppendIf_WhenBuilderIsNull_ThrowsArgumentNullException()
     {
         // Arrange
         StringBuilder builder = null!;
 
         // Act
-        Action action = () => builder.AppendIf(condition: false, "value");
+        void Action()
+            => builder.AppendIf(condition: false, "value");
 
         // Assert
-        action.Should().Throw<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
+    [Fact]
     public void AppendIf_WhenCalled_ShouldReturnSameInstance()
     {
         // Arrange
@@ -72,10 +74,10 @@ internal class StringBuilderExtensionsTests
         var result = builder.AppendIf(condition: false, "value");
 
         // Assert
-        result.Should().BeSameAs(builder);
+        Assert.Same(builder, result);
     }
 
-    [Test]
+    [Fact]
     public void AppendIf_WhenConditionIsFalse_ShouldNotAppendValue()
     {
         // Arrange
@@ -87,10 +89,10 @@ internal class StringBuilderExtensionsTests
             .ToString();
 
         // Assert
-        result.Should().NotBe("value");
+        Assert.NotEqual("value", result);
     }
 
-    [Test]
+    [Fact]
     public void AppendIf_WhenConditionIsTrue_ShouldAppendValue()
     {
         // Arrange
@@ -102,10 +104,10 @@ internal class StringBuilderExtensionsTests
             .ToString();
 
         // Assert
-        result.Should().Be("value");
+        Assert.Equal("value", result);
     }
 
-    [Test]
+    [Fact]
     public void AppendIf_WhenHasTrueFalseValues_ShouldReturnSameInstance()
     {
         // Arrange
@@ -115,23 +117,24 @@ internal class StringBuilderExtensionsTests
         var result = builder.AppendIf(condition: false, "true", "false");
 
         // Assert
-        result.Should().BeSameAs(builder);
+        Assert.Same(builder, result);
     }
 
-    [Test]
+    [Fact]
     public void AppendIf_WhenHasTrueFalseValuesAndBuilderIsNull_ThrowsArgumentNullException()
     {
         // Arrange
         StringBuilder builder = null!;
 
         // Act
-        Action action = () => builder.AppendIf(condition: false, "true", "false");
+        void Action()
+            => builder.AppendIf(condition: false, "true", "false");
 
         // Assert
-        action.Should().Throw<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
+    [Fact]
     public void AppendIf_WhenHasTrueFalseValuesConditionIsTrue_ShouldAppendTrueValue()
     {
         // Arrange
@@ -143,11 +146,11 @@ internal class StringBuilderExtensionsTests
             .ToString();
 
         // Assert
-        result.Should().Be("true");
+        Assert.Equal("true", result);
     }
 
-    [Test]
-    public void AppendIf_WhenHasTrueFalseValuesAndConditionIsFalse_ShouldAppendFalseFalue()
+    [Fact]
+    public void AppendIf_WhenHasTrueFalseValuesAndConditionIsFalse_ShouldAppendFalseValue()
     {
         // Arrange
         var builder = new StringBuilder();
@@ -158,6 +161,6 @@ internal class StringBuilderExtensionsTests
             .ToString();
 
         // Assert
-        result.Should().Be("false");
+        Assert.Equal("false", result);
     }
 }

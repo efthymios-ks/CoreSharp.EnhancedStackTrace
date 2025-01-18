@@ -1,11 +1,12 @@
-﻿using AutoFixture;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Reflection;
 
-namespace CoreSharp.EnhancedStackTrace.Tests.MockTypes;
+namespace Tests.Common.Mocks;
 
 public sealed class MockType : Type
 {
+    public Assembly? AssemblyOverride { get; set; }
     public Type? DeclaringTypeOverride { get; set; }
     public string? FullNameOverride { get; set; }
     public Attribute[] GetCustomAttributesOverride { get; set; } = [];
@@ -19,6 +20,9 @@ public sealed class MockType : Type
     public bool IsGenericTypeOverride { get; set; }
     public string? NameOverride { get; set; }
     public string? NamespaceOverride { get; set; }
+
+    public override Assembly Assembly
+        => AssemblyOverride!;
 
     public override Type? DeclaringType
         => DeclaringTypeOverride;
@@ -63,9 +67,6 @@ public sealed class MockType : Type
         => IsByRefImplOverride;
 
     #region Not used
-    public override Assembly Assembly
-        => throw new NotImplementedException();
-
     public override string? AssemblyQualifiedName
         => throw new NotImplementedException();
 
@@ -112,9 +113,6 @@ public sealed class MockType : Type
     public override PropertyInfo[] GetProperties(BindingFlags bindingAttr)
         => throw new NotImplementedException();
 
-    public override object? InvokeMember(string name, BindingFlags invokeAttr, Binder? binder, object? target, object?[]? args, ParameterModifier[]? modifiers, CultureInfo? culture, string[]? namedParameters)
-        => throw new NotImplementedException();
-
     public override bool IsDefined(Type attributeType, bool inherit)
         => throw new NotImplementedException();
 
@@ -140,6 +138,8 @@ public sealed class MockType : Type
         => throw new NotImplementedException();
 
     protected override bool IsPrimitiveImpl()
+        => throw new NotImplementedException();
+    public override object? InvokeMember(string name, BindingFlags invokeAttr, Binder? binder, object? target, object?[]? args, ParameterModifier[]? modifiers, CultureInfo? culture, string[]? namedParameters)
         => throw new NotImplementedException();
     #endregion
 }

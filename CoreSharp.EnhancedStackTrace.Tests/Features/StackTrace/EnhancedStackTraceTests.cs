@@ -4,7 +4,7 @@ namespace CoreSharp.EnhancedStackTrace.Tests.Features.StackTrace;
 
 public sealed class EnhancedStackTraceTests
 {
-    [Test]
+    [Fact]
     public void ToString_WhenCalled_ShouldReturnConcatenatedFrames()
     {
         // Arrange
@@ -20,10 +20,10 @@ public sealed class EnhancedStackTraceTests
         var result = enhancedStackTrace.ToString();
 
         // Assert
-        result.Should().Be("""
+        Assert.Equal("""
            at frame1
            at frame2
            at frame3
-        """);
+        """, result);
     }
 }

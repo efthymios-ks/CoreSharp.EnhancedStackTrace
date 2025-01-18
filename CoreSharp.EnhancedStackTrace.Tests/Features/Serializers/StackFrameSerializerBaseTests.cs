@@ -1,15 +1,15 @@
 ﻿using CoreSharp.EnhancedStackTrace.Features.Reflection;
 using CoreSharp.EnhancedStackTrace.Features.Serializers;
-using NSubstitute;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using Tests.Common.Mocks;
 
 namespace CoreSharp.EnhancedStackTrace.Tests.Features.Serializers;
 
-internal sealed class StackFrameSerializerBaseTests : TestsBase
+public sealed class StackFrameSerializerBaseTests : TestsBase
 {
-    [Test]
+    [Fact]
     public void GetAlias_WhenTypeIsNull_ThrowsArgumentNullException()
     {
         // Arrange
@@ -17,13 +17,14 @@ internal sealed class StackFrameSerializerBaseTests : TestsBase
         Type type = null!;
 
         // Act
-        Action action = () => stackFrameSerializer.GetAlias(type);
+        void Action()
+            => stackFrameSerializer.GetAlias(type);
 
         // Assert
-        action.Should().ThrowExactly<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
+    [Fact]
     public void GetAlias_WhenCalledWithType_ShouldReturnTypeAlias()
     {
         // Arrange
@@ -39,10 +40,10 @@ internal sealed class StackFrameSerializerBaseTests : TestsBase
         var result = stackFrameSerializer.GetAlias(type);
 
         // Assert
-        result.Should().Be("alias");
+        Assert.Equal("alias", result);
     }
 
-    [Test]
+    [Fact]
     public void GetAlias_WhenParameterIsNull_ThrowsArgumentNullException()
     {
         // Arrange
@@ -50,13 +51,14 @@ internal sealed class StackFrameSerializerBaseTests : TestsBase
         ParameterInfo parameter = null!;
 
         // Act
-        Action action = () => stackFrameSerializer.GetAlias(parameter);
+        void Action()
+            => stackFrameSerializer.GetAlias(parameter);
 
         // Assert
-        action.Should().ThrowExactly<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
+    [Fact]
     public void GetAlias_WhenCalledWithParameterInfo_ShouldReturnParameterInfoAlias()
     {
         // Arrange
@@ -72,44 +74,46 @@ internal sealed class StackFrameSerializerBaseTests : TestsBase
         var result = stackFrameSerializer.GetAlias(parameter);
 
         // Assert
-        result.Should().Be("alias");
+        Assert.Equal("alias", result);
     }
 
-    [Test]
+    [Fact]
     public void DeconstructMethodName_WhenRawMethodNameIsNull_ShouldThrowArgumentNullException()
     {
         // Arrange
         var stackFrameSerializer = MockCreate<MockStackFrameSerializer>();
 
         // Act
-        Action action = () => stackFrameSerializer.DeconstructMethodName(rawMethodName: null!);
+        void Action()
+            => stackFrameSerializer.DeconstructMethodName(rawMethodName: null!);
 
         // Assert
-        action.Should().ThrowExactly<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
-    [TestCase("")]
-    [TestCase(" ")]
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
     public void DeconstructMethodName_WhenRawMethodNameIsEmpty_ShouldThrowArgumentException(string rawMethodName)
     {
         // Arrange
         var stackFrameSerializer = MockCreate<MockStackFrameSerializer>();
 
         // Act
-        Action action = () => stackFrameSerializer.DeconstructMethodName(rawMethodName);
+        void Action()
+            => stackFrameSerializer.DeconstructMethodName(rawMethodName);
 
         // Assert
-        action.Should().ThrowExactly<ArgumentException>();
+        Assert.Throws<ArgumentException>(Action);
     }
 
-    [Test]
+    [Fact]
     public void DeconstructMethodName_WhenRawMethodNameIsNotSubMethod_ShouldReturnMethodNameAndNullSubMethodName()
     {
         // Arrange
         var reflectionHelper = MockFreeze<IReflectionHelper>();
         var stackFrameSerializer = MockCreate<MockStackFrameSerializer>();
-        var rawMethodName = "MethodName";
+        const string rawMethodName = "MethodName";
 
         reflectionHelper
             .DeconstructMethodName(default!)
@@ -119,12 +123,12 @@ internal sealed class StackFrameSerializerBaseTests : TestsBase
         var (methodName, subMethodName, subMethodIdentifier) = stackFrameSerializer.DeconstructMethodName(rawMethodName);
 
         // Assert
-        methodName.Should().Be("MethodName");
-        subMethodName.Should().Be("SubMethodName");
-        subMethodIdentifier.Should().Be(SubMethodIdentifier.LocalFunction);
+        Assert.Equal("MethodName", methodName);
+        Assert.Equal("SubMethodName", subMethodName);
+        Assert.Equal(SubMethodIdentifier.LocalFunction, subMethodIdentifier);
     }
 
-    [Test]
+    [Fact]
     public void GetMethodsArgumentsAsString_WhenMethodBaseIsNull_ThrowsArgumentNullException()
     {
         // Arrange
@@ -132,13 +136,14 @@ internal sealed class StackFrameSerializerBaseTests : TestsBase
         MethodBase methodBase = null!;
 
         // Act
-        Action action = () => stackFrameSerializer.GetMethodsArgumentsAsString(methodBase);
+        void Action()
+            => stackFrameSerializer.GetMethodsArgumentsAsString(methodBase);
 
         // Assert
-        action.Should().ThrowExactly<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
+    [Fact]
     public void GetMethodsArgumentsAsString_WhenMethodHasNoArguments_ShouldReturnEmptyString()
     {
         // Arrange
@@ -149,10 +154,10 @@ internal sealed class StackFrameSerializerBaseTests : TestsBase
         var result = stackFrameSerializer.GetMethodsArgumentsAsString(method);
 
         // Assert
-        result.Should().BeEmpty();
+        Assert.Empty(result);
     }
 
-    [Test]
+    [Fact]
     public void GetMethodsArgumentsAsString_WhenMethodHasArguments_ShouldReturnArgumentAliasesAsString()
     {
         // Arrange
@@ -172,10 +177,10 @@ internal sealed class StackFrameSerializerBaseTests : TestsBase
         var result = stackFrameSerializer.GetMethodsArgumentsAsString(method);
 
         // Assert
-        result.Should().Be("Int32 arg1, String arg2");
+        Assert.Equal("Int32 arg1, String arg2", result);
     }
 
-    [Test]
+    [Fact]
     public void GetGenericArgumentsAsString_WhenMethodBaseIsNull_ThrowsArgumentNullException()
     {
         // Arrange
@@ -183,13 +188,14 @@ internal sealed class StackFrameSerializerBaseTests : TestsBase
         MethodBase methodBase = null!;
 
         // Act
-        Action action = () => stackFrameSerializer.GetGenericArgumentsAsString(methodBase);
+        void Action()
+            => stackFrameSerializer.GetGenericArgumentsAsString(methodBase);
 
         // Assert
-        action.Should().ThrowExactly<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
+    [Fact]
     public void GetGenericArgumentsAsString_WhenMethodIsNotGeneric_ShouldReturnEmptyString()
     {
         // Arrange
@@ -203,10 +209,10 @@ internal sealed class StackFrameSerializerBaseTests : TestsBase
         var result = stackFrameSerializer.GetGenericArgumentsAsString(methodBase);
 
         // Assert
-        result.Should().BeEmpty();
+        Assert.Empty(result);
     }
 
-    [Test]
+    [Fact]
     public void GetGenericArgumentsAsString_WhenMethodIsGeneric_ShouldReturnGenericArgumentsAsString()
     {
         // Arrange
@@ -215,7 +221,7 @@ internal sealed class StackFrameSerializerBaseTests : TestsBase
         var methodBase = new MockMethodInfo
         {
             IsGenericMethodOverride = true,
-            GetGenericArgumentsOverride = [typeof(int), typeof(string)]
+            GetGenericArgumentsOverride = new[] { typeof(int), typeof(string) }
         };
 
         typeAliasProvider
@@ -230,10 +236,10 @@ internal sealed class StackFrameSerializerBaseTests : TestsBase
         var result = stackFrameSerializer.GetGenericArgumentsAsString(methodBase);
 
         // Assert
-        result.Should().Be("Int32, String");
+        Assert.Equal("Int32, String", result);
     }
 
-    [Test]
+    [Fact]
     public void GetLineInfoAsString_WhenFrameIsNull_ShouldThrowArgumentNullException()
     {
         // Arrange
@@ -241,13 +247,14 @@ internal sealed class StackFrameSerializerBaseTests : TestsBase
         StackFrame frame = null!;
 
         // Act
-        Action action = () => stackFrameSerializer.GetLineInfoAsString(frame);
+        void Action()
+            => stackFrameSerializer.GetLineInfoAsString(frame);
 
         // Assert
-        action.Should().ThrowExactly<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
+    [Fact]
     public void GetLineInfoAsString_WhenCalled_ShouldLineInfo()
     {
         // Arrange
@@ -258,7 +265,7 @@ internal sealed class StackFrameSerializerBaseTests : TestsBase
         var result = stackFrameSerializer.GetLineInfoAsString(frame);
 
         // Assert
-        result.Should().MatchRegex(@"in (?<FileName>.*):line (?<LineNumber>\d+)");
+        Assert.Matches(@"in (?<FileName>.*):line (?<LineNumber>\d+)", result);
     }
 
     private sealed class MockStackFrameSerializer(

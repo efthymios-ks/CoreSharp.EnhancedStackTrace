@@ -5,16 +5,17 @@ namespace CoreSharp.EnhancedStackTrace.Tests.Extensions;
 
 public sealed class StackTraceExtensionsTests
 {
-    [Test]
+    [Fact]
     public void Enhanced_WhenStackTraceIsNull_ShouldThrowArgumentNullException()
     {
         // Arrange
         StackTrace stackTrace = null!;
 
         // Act
-        Action action = () => stackTrace.Enhance();
+        void Action()
+            => stackTrace.Enhance();
 
         // Assert
-        action.Should().ThrowExactly<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 }

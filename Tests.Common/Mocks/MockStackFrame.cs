@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 
-namespace CoreSharp.EnhancedStackTrace.Tests.MockTypes;
+namespace Tests.Common.Mocks;
 
-internal sealed class MockStackFrame : StackFrame
+public sealed class MockStackFrame : StackFrame
 {
     public static readonly FieldInfo _methodField = null!;
     public static readonly FieldInfo _fileNameField = null!;

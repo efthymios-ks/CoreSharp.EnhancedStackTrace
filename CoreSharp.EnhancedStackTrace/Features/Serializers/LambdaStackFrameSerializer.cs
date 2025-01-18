@@ -84,7 +84,7 @@ internal sealed class LambdaStackFrameSerializer(
         var declaringType = delegateMember.DeclaringType!;
         var declaringTypeAsString = GetAlias(delegateMember.DeclaringType!);
 
-        if (string.IsNullOrWhiteSpace(declaringType.Namespace) || declaringTypeAsString.StartsWith(declaringType.Name))
+        if (string.IsNullOrWhiteSpace(declaringType.Namespace) || declaringTypeAsString.StartsWith(declaringType.Namespace))
         {
             return declaringTypeAsString;
         }

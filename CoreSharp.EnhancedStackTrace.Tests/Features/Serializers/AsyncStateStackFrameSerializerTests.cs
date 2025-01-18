@@ -2,29 +2,27 @@
 using CoreSharp.EnhancedStackTrace.Features.Serializers;
 using CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.Common;
 using System.Runtime.CompilerServices;
+using Tests.Common.Mocks;
 
 namespace CoreSharp.EnhancedStackTrace.Tests.Features.Serializers;
 
-internal sealed partial class AsyncStateStackFrameSerializerTests : TestsBase
+public sealed partial class AsyncStateStackFrameSerializerTests : StackFrameSerializerTestsBase
 {
-    [OneTimeSetUp]
-    public async Task OneTimeSetUp()
-        => await ToStringTestArgs.InitAsync(ToStringTestArgs.Source);
-
-    [Test]
+    [Fact]
     public void CanSerialize_WhenFrameIsNull_ShouldThrowArgumentNullException()
     {
         // Arrange
         var serializer = MockCreate<AsyncStateStackFrameSerializer>();
 
         // Act
-        Action action = () => serializer.CanSerialize(frame: null!);
+        void Action()
+            => serializer.CanSerialize(frame: null!);
 
         // Assert
-        action.Should().Throw<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
+    [Fact]
     public void CanSerialize_WhenMethodBaseIsNotMethodInfo_ShouldReturnFalse()
     {
         // Arrange
@@ -38,10 +36,10 @@ internal sealed partial class AsyncStateStackFrameSerializerTests : TestsBase
         var result = serializer.CanSerialize(frame);
 
         // Assert
-        result.Should().BeFalse();
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void CanSerialize_WhenMethodBaseReflectedTypeIsNull_ShouldReturnFalse()
     {
         // Arrange
@@ -59,10 +57,10 @@ internal sealed partial class AsyncStateStackFrameSerializerTests : TestsBase
         var result = serializer.CanSerialize(frame);
 
         // Assert
-        result.Should().BeFalse();
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void CanSerialize_WhenMethodBaseReflectedTypeDoesNotContainIAsyncStateMachine_ShouldReturnFalse()
     {
         // Arrange
@@ -82,10 +80,10 @@ internal sealed partial class AsyncStateStackFrameSerializerTests : TestsBase
         var result = serializer.CanSerialize(frame);
 
         // Assert
-        result.Should().BeFalse();
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void CanSerialize_WhenMethodBaseReflectedTypeContainsAsyncStateMachine_ShouldReturnTrue()
     {
         // Arrange
@@ -105,25 +103,25 @@ internal sealed partial class AsyncStateStackFrameSerializerTests : TestsBase
         var result = serializer.CanSerialize(frame);
 
         // Assert
-        result.Should().BeTrue();
+        Assert.True(result);
     }
 
-    [Test]
+    [Fact]
     public void ToString_WhenFrameIsNull_ShouldThrowArgumentNullException()
     {
         // Arrange
         var serializer = MockCreate<AsyncStateStackFrameSerializer>();
 
         // Act
-        Action action = () => serializer.ToString(frame: null!);
+        void Action()
+            => serializer.ToString(frame: null!);
 
         // Assert
-        action.Should().Throw<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
-    [TestCaseSource(typeof(ToStringTestArgs), nameof(ToStringTestArgs.Source))]
-    public void ToString_WhenCalled_ShouldReturnCorrectValue(ToStringTestArgs arguments)
+    [Fact]
+    public async Task ToString_WhenStackFrameIsTaskWithNoReturnType_ShouldReturnCorrectValue()
     {
         // Arrange
         var reflectionHelper = new ReflectionHelper();
@@ -134,61 +132,106 @@ internal sealed partial class AsyncStateStackFrameSerializerTests : TestsBase
             parameterInfoHelper,
             reflectionHelper);
 
+        var stackFrame = await RunAndCaptureAsync(
+            ErrorFactory.TaskWithNoReturnType,
+            fileName: "MyFile",
+            lineNumber: 10
+        );
+
         // Act
-        var result = serializer.ToString(arguments.StackFrame);
+        var result = serializer.ToString(stackFrame);
 
         // Assert
-        result.Should().Be(arguments.ExpectedToString);
+        Assert.Equal("async Task CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.AsyncStateStackFrameSerializerTests+ErrorFactory.TaskWithNoReturnType() in MyFile:line 10", result);
     }
 
-    public sealed class ToStringTestArgs : AsyncToStringArgsBase<ToStringTestArgs>
+    [Fact]
+    public async Task ToString_WhenStackFrameIsTaskWithReturnType_ShouldReturnCorrectValue()
     {
-        public static IEnumerable<ToStringTestArgs> Source { get; } =
-        [
-            new ()
-            {
-                Label = "ReturnsTask",
-                ThrowErrorFactory = TaskWithNoReturnType,
-                FileName = "MyFile",
-                LineNumber = 10,
-                ExpectedToString = "async Task CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.AsyncStateStackFrameSerializerTests+ToStringTestArgs.TaskWithNoReturnType() in MyFile:line 10"
-            },
-            new ()
-            {
-                Label = "ReturnsTask<T>",
-                ThrowErrorFactory = TaskWithReturnType,
-                FileName = "MyFile",
-                LineNumber = 10,
-                ExpectedToString = "async Task<int> CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.AsyncStateStackFrameSerializerTests+ToStringTestArgs.TaskWithReturnType() in MyFile:line 10"
-            },
-            new ()
-            {
-                Label = "HasGenericArguments",
-                ThrowErrorFactory = TaskWithGenericArguments<int>,
-                FileName = "MyFile",
-                LineNumber = 10,
-                ExpectedToString = "async Task CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.AsyncStateStackFrameSerializerTests+ToStringTestArgs.TaskWithGenericArguments<TValue>() in MyFile:line 10"
-            },
-            new()
-            {
-                Label = "HasArguments",
-                ThrowErrorFactory = () => TaskWithMethodArguments(default),
-                FileName = "MyFile",
-                LineNumber = 10,
-                ExpectedToString = "async Task CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.AsyncStateStackFrameSerializerTests+ToStringTestArgs.TaskWithMethodArguments(int _) in MyFile:line 10"
-            }
-        ];
+        // Arrange
+        var reflectionHelper = new ReflectionHelper();
+        var typeAliasProvider = new TypeAliasProvider(reflectionHelper);
+        var parameterInfoHelper = new ParameterInfoHelper(reflectionHelper, typeAliasProvider);
+        var serializer = new AsyncStateStackFrameSerializer(
+            typeAliasProvider,
+            parameterInfoHelper,
+            reflectionHelper);
 
-        private static async Task TaskWithNoReturnType()
+        var stackFrame = await RunAndCaptureAsync(
+            ErrorFactory.TaskWithReturnType,
+            fileName: "MyFile",
+            lineNumber: 10
+        );
+
+        // Act
+        var result = serializer.ToString(stackFrame);
+
+        // Assert
+        Assert.Equal("async Task<int> CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.AsyncStateStackFrameSerializerTests+ErrorFactory.TaskWithReturnType() in MyFile:line 10", result);
+    }
+
+    [Fact]
+    public async Task ToString_WhenStackFrameIsTaskWithGenericArguments_ShouldReturnCorrectValue()
+    {
+        // Arrange
+        var reflectionHelper = new ReflectionHelper();
+        var typeAliasProvider = new TypeAliasProvider(reflectionHelper);
+        var parameterInfoHelper = new ParameterInfoHelper(reflectionHelper, typeAliasProvider);
+        var serializer = new AsyncStateStackFrameSerializer(
+            typeAliasProvider,
+            parameterInfoHelper,
+            reflectionHelper);
+
+        var stackFrame = await RunAndCaptureAsync(
+            ErrorFactory.TaskWithGenericArguments<int>,
+            fileName: "MyFile",
+            lineNumber: 10
+        );
+
+        // Act
+        var result = serializer.ToString(stackFrame);
+
+        // Assert
+        Assert.Equal("async Task CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.AsyncStateStackFrameSerializerTests+ErrorFactory.TaskWithGenericArguments<TValue>() in MyFile:line 10", result);
+    }
+
+    [Fact]
+    public async Task ToString_WhenStackFrameIsTaskWithMethodArguments_ShouldReturnCorrectValue()
+    {
+        // Arrange
+        var reflectionHelper = new ReflectionHelper();
+        var typeAliasProvider = new TypeAliasProvider(reflectionHelper);
+        var parameterInfoHelper = new ParameterInfoHelper(reflectionHelper, typeAliasProvider);
+        var serializer = new AsyncStateStackFrameSerializer(
+            typeAliasProvider,
+            parameterInfoHelper,
+            reflectionHelper);
+
+        var stackFrame = await RunAndCaptureAsync(
+           () => ErrorFactory.TaskWithMethodArguments(default),
+           fileName: "MyFile",
+           lineNumber: 10
+        );
+
+        // Act
+        var result = serializer.ToString(stackFrame);
+
+        // Assert
+        Assert.Equal("async Task CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.AsyncStateStackFrameSerializerTests+ErrorFactory.TaskWithMethodArguments(int _) in MyFile:line 10", result);
+    }
+
+    private static class ErrorFactory
+    {
+        public static async Task TaskWithNoReturnType()
             => await Task.FromException(new Exception());
 
-        private static async Task<int> TaskWithReturnType()
+        public static async Task<int> TaskWithReturnType()
             => await Task.FromException<int>(new Exception());
 
-        private static async Task TaskWithGenericArguments<TValue>()
+        public static async Task TaskWithGenericArguments<TValue>()
             => await Task.FromException(new Exception());
 
-        private static async Task TaskWithMethodArguments(int _)
+        public static async Task TaskWithMethodArguments(int _)
             => await Task.FromException(new Exception());
     }
 }

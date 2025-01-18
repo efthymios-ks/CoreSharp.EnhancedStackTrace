@@ -1,30 +1,27 @@
 ﻿using CoreSharp.EnhancedStackTrace.Features.Reflection;
 using CoreSharp.EnhancedStackTrace.Features.Serializers;
 using CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.Common;
+using Tests.Common.Mocks;
 
 namespace CoreSharp.EnhancedStackTrace.Tests.Features.Serializers;
 
-internal sealed class MethodStackFrameSerializerTests : TestsBase
+public sealed class MethodStackFrameSerializerTests : StackFrameSerializerTestsBase
 {
-    [OneTimeSetUp]
-    public void OneTimeSetUp()
-        => ToStringTestArgs.Init(ToStringTestArgs.Source);
-
-
-    [Test]
+    [Fact]
     public void CanSerialize_WhenFrameIsNull_ShouldThrowArgumentNullException()
     {
         // Arrange
         var serializer = MockCreate<MethodStackFrameSerializer>();
 
         // Act
-        Action action = () => serializer.CanSerialize(frame: null!);
+        void Action()
+            => serializer.CanSerialize(frame: null!);
 
         // Assert
-        action.Should().Throw<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
+    [Fact]
     public void CanSerialize_WhenMethodBaseIsNotMethodInfo_ShouldReturnFalse()
     {
         // Arrange
@@ -38,10 +35,10 @@ internal sealed class MethodStackFrameSerializerTests : TestsBase
         var result = serializer.CanSerialize(frame);
 
         // Assert
-        result.Should().BeFalse();
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void CanSerialize_WhenMethodBaseIsMethodInfo_ShouldReturnTrue()
     {
         // Arrange
@@ -55,25 +52,25 @@ internal sealed class MethodStackFrameSerializerTests : TestsBase
         var result = serializer.CanSerialize(frame);
 
         // Assert
-        result.Should().BeTrue();
+        Assert.True(result);
     }
 
-    [Test]
+    [Fact]
     public void ToString_WhenFrameIsNull_ShouldThrowArgumentNullException()
     {
         // Arrange
         var serializer = MockCreate<MethodStackFrameSerializer>();
 
         // Act
-        Action action = () => serializer.ToString(frame: null!);
+        void Action()
+            => serializer.ToString(frame: null!);
 
         // Assert
-        action.Should().Throw<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
-    [TestCaseSource(typeof(ToStringTestArgs), nameof(ToStringTestArgs.Source))]
-    public void ToString_WhenCalled_ShouldReturnCorrectValue(ToStringTestArgs arguments)
+    [Fact]
+    public void ToString_WhenStackFrameIsMethodWithNoReturnType_ShouldReturnCorrectValue()
     {
         // Arrange
         var reflectionHelper = new ReflectionHelper();
@@ -84,82 +81,177 @@ internal sealed class MethodStackFrameSerializerTests : TestsBase
             parameterInfoHelper,
             reflectionHelper);
 
+        var stackFrame = RunAndCapture(
+            ErrorFactory.MethodWithNoReturnType,
+            fileName: "MyFile",
+            lineNumber: 10
+        );
+
         // Act
-        var result = serializer.ToString(arguments.StackFrame);
+        var result = serializer.ToString(stackFrame);
 
         // Assert
-        result.Should().Be(arguments.ExpectedToString);
+        Assert.Equal("void CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.MethodStackFrameSerializerTests+ErrorFactory.MethodWithNoReturnType() in MyFile:line 10", result);
+    }
+    [Fact]
+    public void ToString_WhenStackFrameIsMethodWithReturnType_ShouldReturnCorrectValue()
+    {
+        // Arrange
+        var reflectionHelper = new ReflectionHelper();
+        var typeAliasProvider = new TypeAliasProvider(reflectionHelper);
+        var parameterInfoHelper = new ParameterInfoHelper(reflectionHelper, typeAliasProvider);
+        var serializer = new MethodStackFrameSerializer(
+            typeAliasProvider,
+            parameterInfoHelper,
+            reflectionHelper);
+
+        var stackFrame = RunAndCapture(
+            () => _ = ErrorFactory.MethodWithReturnType(),
+            fileName: "MyFile",
+            lineNumber: 10
+        );
+
+        // Act
+        var result = serializer.ToString(stackFrame);
+
+        // Assert
+        Assert.Equal("int CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.MethodStackFrameSerializerTests+ErrorFactory.MethodWithReturnType() in MyFile:line 10", result);
     }
 
-    public sealed class ToStringTestArgs : ToStringArgsTestBase<ToStringTestArgs>
+    [Fact]
+    public void ToString_WhenStackFrameIsLocalMethod_ShouldReturnCorrectValue()
     {
-        public static IEnumerable<ToStringTestArgs> Source { get; } =
-        [
-            new()
-            {
-                Label = "ReturnsVoid",
-                ThrowErrorFactory = MethodVoid,
-                FileName = "MyFile",
-                LineNumber = 10,
-                ExpectedToString = "void CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.MethodStackFrameSerializerTests+ToStringTestArgs.MethodVoid() in MyFile:line 10"
-            },
-            new()
-            {
-                Label = "HasReturnType",
-                ThrowErrorFactory = () => MethodWithResult(),
-                FileName = "MyFile",
-                LineNumber = 10,
-                ExpectedToString = "int CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.MethodStackFrameSerializerTests+ToStringTestArgs.MethodWithResult() in MyFile:line 10"
-            },
-            new()
-            {
-                Label = "LocalMethod",
-                ThrowErrorFactory = MethodWithLocalMethod,
-                FileName = "MyFile",
-                LineNumber = 10,
-                ExpectedToString = "void CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.MethodStackFrameSerializerTests+ToStringTestArgs.MethodWithLocalMethod()+LocalMethod() in MyFile:line 10"
-            },
-            new()
-            {
-                Label = "HasGenericArguments",
-                ThrowErrorFactory = MethodWithGenericArguments<int>,
-                FileName = "MyFile",
-                LineNumber = 10,
-                ExpectedToString = "void CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.MethodStackFrameSerializerTests+ToStringTestArgs.MethodWithGenericArguments<TValue>() in MyFile:line 10"
-            },
-            new()
-            {
-                Label = "HasArguments",
-                ThrowErrorFactory = () => MethodWithArguments(default),
-                FileName = "MyFile",
-                LineNumber = 10,
-                ExpectedToString = "void CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.MethodStackFrameSerializerTests+ToStringTestArgs.MethodWithArguments(int _) in MyFile:line 10"
-            },
-            new()
-            {
-                Label = "IndexerGet",
-                ThrowErrorFactory = () => _ = new ClassWithIndexer()[0],
-                FileName = "MyFile",
-                LineNumber = 10,
-                ExpectedToString = "int CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.MethodStackFrameSerializerTests+ToStringTestArgs+ClassWithIndexer[int index] in MyFile:line 10"
-            },
-            new()
-            {
-                Label = "IndexerSet",
-                ThrowErrorFactory = () => new ClassWithIndexer()[0] = default,
-                FileName = "MyFile",
-                LineNumber = 10,
-                ExpectedToString = "void CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.MethodStackFrameSerializerTests+ToStringTestArgs+ClassWithIndexer[int index, int value] in MyFile:line 10"
-            }
-        ];
+        // Arrange
+        var reflectionHelper = new ReflectionHelper();
+        var typeAliasProvider = new TypeAliasProvider(reflectionHelper);
+        var parameterInfoHelper = new ParameterInfoHelper(reflectionHelper, typeAliasProvider);
+        var serializer = new MethodStackFrameSerializer(
+            typeAliasProvider,
+            parameterInfoHelper,
+            reflectionHelper);
 
-        private static void MethodVoid()
+        var stackFrame = RunAndCapture(
+            ErrorFactory.MethodWithLocalMethod,
+            fileName: "MyFile",
+            lineNumber: 10
+        );
+
+        // Act
+        var result = serializer.ToString(stackFrame);
+
+        // Assert
+        Assert.Equal("void CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.MethodStackFrameSerializerTests+ErrorFactory.MethodWithLocalMethod()+LocalMethod() in MyFile:line 10", result);
+    }
+
+    [Fact]
+    public void ToString_WhenStackFrameIsMethodWithGenericArguments_ShouldReturnCorrectValue()
+    {
+        // Arrange
+        var reflectionHelper = new ReflectionHelper();
+        var typeAliasProvider = new TypeAliasProvider(reflectionHelper);
+        var parameterInfoHelper = new ParameterInfoHelper(reflectionHelper, typeAliasProvider);
+        var serializer = new MethodStackFrameSerializer(
+            typeAliasProvider,
+            parameterInfoHelper,
+            reflectionHelper);
+
+        var stackFrame = RunAndCapture(
+            ErrorFactory.MethodWithGenericArguments<int>,
+            fileName: "MyFile",
+            lineNumber: 10
+        );
+
+        // Act
+        var result = serializer.ToString(stackFrame);
+
+        // Assert
+        Assert.Equal("void CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.MethodStackFrameSerializerTests+ErrorFactory.MethodWithGenericArguments<TValue>() in MyFile:line 10", result);
+    }
+
+    [Fact]
+    public void ToString_WhenStackFrameIsMethodWithArguments_ShouldReturnCorrectValue()
+    {
+        // Arrange
+        var reflectionHelper = new ReflectionHelper();
+        var typeAliasProvider = new TypeAliasProvider(reflectionHelper);
+        var parameterInfoHelper = new ParameterInfoHelper(reflectionHelper, typeAliasProvider);
+        var serializer = new MethodStackFrameSerializer(
+            typeAliasProvider,
+            parameterInfoHelper,
+            reflectionHelper);
+
+        var stackFrame = RunAndCapture(
+            () => ErrorFactory.MethodWithArguments(default),
+            fileName: "MyFile",
+            lineNumber: 10
+        );
+
+        // Act
+        var result = serializer.ToString(stackFrame);
+
+        // Assert
+        Assert.Equal("void CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.MethodStackFrameSerializerTests+ErrorFactory.MethodWithArguments(int _) in MyFile:line 10", result);
+    }
+
+    [Fact]
+    public void ToString_WhenStackFrameIsGetIndexer_ShouldReturnCorrectValue()
+    {
+        // Arrange
+        var reflectionHelper = new ReflectionHelper();
+        var typeAliasProvider = new TypeAliasProvider(reflectionHelper);
+        var parameterInfoHelper = new ParameterInfoHelper(reflectionHelper, typeAliasProvider);
+        var serializer = new MethodStackFrameSerializer(
+            typeAliasProvider,
+            parameterInfoHelper,
+            reflectionHelper);
+
+        var stackFrame = RunAndCapture(
+            ErrorFactory.IndexerGet,
+            fileName: "MyFile",
+            lineNumber: 10
+        );
+
+        // Act
+        var result = serializer.ToString(stackFrame);
+
+        // Assert
+        Assert.Equal("int CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.MethodStackFrameSerializerTests+ErrorFactory+ClassWithIndexer[int index] in MyFile:line 10", result);
+    }
+
+    [Fact]
+    public void ToString_WhenStackFrameIsSetIndexer_ShouldReturnCorrectValue()
+    {
+        // Arrange
+        var reflectionHelper = new ReflectionHelper();
+        var typeAliasProvider = new TypeAliasProvider(reflectionHelper);
+        var parameterInfoHelper = new ParameterInfoHelper(reflectionHelper, typeAliasProvider);
+        var serializer = new MethodStackFrameSerializer(
+            typeAliasProvider,
+            parameterInfoHelper,
+            reflectionHelper);
+
+        var stackFrame = RunAndCapture(
+            ErrorFactory.IndexerSet,
+            fileName: "MyFile",
+            lineNumber: 10
+        );
+
+        // Act
+        var result = serializer.ToString(stackFrame);
+
+        // Assert
+        Assert.Equal("void CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.MethodStackFrameSerializerTests+ErrorFactory+ClassWithIndexer[int index, int value] in MyFile:line 10", result);
+    }
+
+    private static class ErrorFactory
+    {
+        public static void MethodWithNoReturnType()
            => throw new Exception();
 
-        private static int MethodWithResult()
+        public static int MethodWithReturnType()
             => throw new Exception();
 
-        private static void MethodWithLocalMethod()
+        public static void MethodWithLocalMethod()
         {
             LocalMethod();
 
@@ -167,11 +259,17 @@ internal sealed class MethodStackFrameSerializerTests : TestsBase
                 => throw new Exception();
         }
 
-        private static void MethodWithGenericArguments<TValue>()
+        public static void MethodWithGenericArguments<TValue>()
             => throw new Exception();
 
-        private static void MethodWithArguments(int _)
+        public static void MethodWithArguments(int _)
             => throw new Exception();
+
+        public static void IndexerGet()
+            => _ = new ClassWithIndexer()[0];
+
+        public static void IndexerSet()
+            => new ClassWithIndexer()[0] = default;
 
         private sealed class ClassWithIndexer
         {

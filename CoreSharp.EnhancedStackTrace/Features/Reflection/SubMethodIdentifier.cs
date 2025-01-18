@@ -1,6 +1,6 @@
 ﻿namespace CoreSharp.EnhancedStackTrace.Features.Reflection;
 
-internal enum SubMethodIdentifier
+public enum SubMethodIdentifier
 {
     LambdaMethod,
     LocalFunction,

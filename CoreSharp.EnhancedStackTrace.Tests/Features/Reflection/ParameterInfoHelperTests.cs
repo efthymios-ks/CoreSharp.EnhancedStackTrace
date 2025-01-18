@@ -1,26 +1,26 @@
 ﻿using CoreSharp.EnhancedStackTrace.Features.Reflection;
-using CoreSharp.EnhancedStackTrace.Tests.Common;
-using NSubstitute;
 using System.Runtime.CompilerServices;
+using Tests.Common.Mocks;
 
 namespace CoreSharp.EnhancedStackTrace.Tests.Features.Reflection;
 
-internal sealed class ParameterInfoHelperTests : TestsBase
+public sealed class ParameterInfoHelperTests : TestsBase
 {
-    [Test]
+    [Fact]
     public void GetAlias_WhenParameterIsNull_ThrowsArgumentNullException()
     {
         // Arrange
         var helper = MockCreate<ParameterInfoHelper>();
 
         // Act
-        Action action = () => helper.GetAlias(parameter: null!);
+        void Action()
+            => helper.GetAlias(parameter: null!);
 
         // Assert
-        action.Should().ThrowExactly<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
+    [Fact]
     public void GetAlias_WhenParameterIsOut_ShouldIncludeOutInAlias()
     {
         // Arrange
@@ -34,10 +34,10 @@ internal sealed class ParameterInfoHelperTests : TestsBase
         var result = helper.GetAlias(parameter);
 
         // Assert
-        result.Should().StartWith("out");
+        Assert.StartsWith("out", result);
     }
 
-    [Test]
+    [Fact]
     public void GetAlias_WhenParameterIsIn_ShouldIncludeInInAlias()
     {
         // Arrange
@@ -51,10 +51,10 @@ internal sealed class ParameterInfoHelperTests : TestsBase
         var result = helper.GetAlias(parameter);
 
         // Assert
-        result.Should().StartWith("in");
+        Assert.StartsWith("in", result);
     }
 
-    [Test]
+    [Fact]
     public void GetAlias_WhenParameterIsRef_ShouldIncludeRefInAlias()
     {
         // Arrange
@@ -70,10 +70,10 @@ internal sealed class ParameterInfoHelperTests : TestsBase
         var result = helper.GetAlias(parameter);
 
         // Assert
-        result.Should().StartWith("ref");
+        Assert.StartsWith("ref", result);
     }
 
-    [Test]
+    [Fact]
     public void GetAlias_WhenParameterIsDynamic_ShouldReturnDynamic()
     {
         // Arrange
@@ -87,10 +87,10 @@ internal sealed class ParameterInfoHelperTests : TestsBase
         var result = helper.GetAlias(parameter);
 
         // Assert
-        result.Should().Contain("dynamic");
+        Assert.Contains("dynamic", result);
     }
 
-    [Test]
+    [Fact]
     public void GetAlias_WhenParameterIsValueTupleWithoutNames_ShouldReturnValueTupleWithoutNamesAlias()
     {
         // Arrange
@@ -118,10 +118,10 @@ internal sealed class ParameterInfoHelperTests : TestsBase
         var result = helper.GetAlias(parameter);
 
         // Assert
-        result.Should().Contain("(int, string)");
+        Assert.Contains("(int, string)", result);
     }
 
-    [Test]
+    [Fact]
     public void GetAlias_WhenParameterIsValueTupleWithNames_ShouldReturnValueTupleWithNamesAlias()
     {
         // Arrange
@@ -150,10 +150,10 @@ internal sealed class ParameterInfoHelperTests : TestsBase
         var result = helper.GetAlias(parameter);
 
         // Assert
-        result.Should().Contain("(int a, string b)");
+        Assert.Contains("(int a, string b)", result);
     }
 
-    [Test]
+    [Fact]
     public void GetAlias_WhenCalled_ShouldIncludeParameterTypeInAlias()
     {
         // Arrange
@@ -172,10 +172,10 @@ internal sealed class ParameterInfoHelperTests : TestsBase
         var result = helper.GetAlias(parameter);
 
         // Assert
-        result.Should().Contain("int");
+        Assert.Contains("int", result);
     }
 
-    [Test]
+    [Fact]
     public void GetAlias_WhenParameterHasName_ShouldIncludeNameInAlias()
     {
         // Arrange
@@ -189,10 +189,10 @@ internal sealed class ParameterInfoHelperTests : TestsBase
         var result = helper.GetAlias(parameter);
 
         // Assert
-        result.Should().Contain("name");
+        Assert.Contains("name", result);
     }
 
-    [Test]
+    [Fact]
     public void GetAlias_WhenParameterHasDefaultValueIsTrueAndDefaultValueIsNull_ShouldNotIncludeDefaultValue()
     {
         // Arrange
@@ -208,10 +208,10 @@ internal sealed class ParameterInfoHelperTests : TestsBase
         var result = helper.GetAlias(parameter);
 
         // Assert
-        result.Should().EndWith("name");
+        Assert.EndsWith("name", result);
     }
 
-    [Test]
+    [Fact]
     public void GetAlias_WhenParameterHasDefaultValueIsFalseAndDefaultValueIsNotNull_ShouldNotIncludeDefaultValue()
     {
         // Arrange
@@ -227,10 +227,10 @@ internal sealed class ParameterInfoHelperTests : TestsBase
         var result = helper.GetAlias(parameter);
 
         // Assert
-        result.Should().EndWith("name");
+        Assert.EndsWith("name", result);
     }
 
-    [Test]
+    [Fact]
     public void GetAlias_WhenParameterHasDefaultValue_ShouldIncludeDefaultValue()
     {
         // Arrange
@@ -246,6 +246,6 @@ internal sealed class ParameterInfoHelperTests : TestsBase
         var result = helper.GetAlias(parameter);
 
         // Assert
-        result.Should().EndWith("value");
+        Assert.EndsWith("value", result);
     }
 }

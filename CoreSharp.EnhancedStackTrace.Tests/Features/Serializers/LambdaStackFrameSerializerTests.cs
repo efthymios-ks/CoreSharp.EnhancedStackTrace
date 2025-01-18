@@ -1,31 +1,27 @@
 ﻿using CoreSharp.EnhancedStackTrace.Features.Reflection;
 using CoreSharp.EnhancedStackTrace.Features.Serializers;
 using CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.Common;
-using NSubstitute;
-using System.Diagnostics.CodeAnalysis;
+using Tests.Common.Mocks;
 
 namespace CoreSharp.EnhancedStackTrace.Tests.Features.Serializers;
 
-internal sealed class LambdaStackFrameSerializerTests : TestsBase
+public sealed class LambdaStackFrameSerializerTests : StackFrameSerializerTestsBase
 {
-    [OneTimeSetUp]
-    public void OneTimeSetUp()
-        => ToStringTestArgs.Init(ToStringTestArgs.Source);
-
-    [Test]
+    [Fact]
     public void CanSerialize_WhenFrameIsNull_ShouldThrowArgumentNullException()
     {
         // Arrange
         var serializer = MockCreate<LambdaStackFrameSerializer>();
 
         // Act
-        Action action = () => serializer.CanSerialize(frame: null!);
+        void Action()
+            => serializer.CanSerialize(frame: null!);
 
         // Assert
-        action.Should().Throw<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
+    [Fact]
     public void CanSerialize_WhenMethodBaseIsNotMethodInfo_ShouldReturnFalse()
     {
         // Arrange
@@ -37,10 +33,10 @@ internal sealed class LambdaStackFrameSerializerTests : TestsBase
         var result = serializer.CanSerialize(frame);
 
         // Assert
-        result.Should().BeFalse();
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void CanSerialize_WhenMethodBaseNameIsNotCctor_ShouldReturnFalse()
     {
         // Arrange
@@ -60,10 +56,10 @@ internal sealed class LambdaStackFrameSerializerTests : TestsBase
         var result = serializer.CanSerialize(frame);
 
         // Assert
-        result.Should().BeFalse();
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void CanSerialize_WhenMethodBaseSubMethodIdentfierIsNotLambda_ShouldReturnFalse()
     {
         // Arrange
@@ -83,10 +79,10 @@ internal sealed class LambdaStackFrameSerializerTests : TestsBase
         var result = serializer.CanSerialize(frame);
 
         // Assert
-        result.Should().BeFalse();
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void CanSerialize_WhenMethodBaseIsLambda_ShouldReturnTrue()
     {
         // Arrange
@@ -106,25 +102,25 @@ internal sealed class LambdaStackFrameSerializerTests : TestsBase
         var result = serializer.CanSerialize(frame);
 
         // Assert
-        result.Should().BeTrue();
+        Assert.True(result);
     }
 
-    [Test]
+    [Fact]
     public void ToString_WhenFrameIsNull_ShouldThrowArgumentNullException()
     {
         // Arrange
         var serializer = MockCreate<AsyncStateStackFrameSerializer>();
 
         // Act
-        Action action = () => serializer.ToString(frame: null!);
+        void Action()
+            => serializer.ToString(frame: null!);
 
         // Assert
-        action.Should().Throw<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
-    [TestCaseSource(typeof(ToStringTestArgs), nameof(ToStringTestArgs.Source))]
-    public void ToString_WhenCalled_ShouldReturnCorrectValue(ToStringTestArgs arguments)
+    [Fact]
+    public void ToString_WhenStackFrameIsAutoPropertyBackingField_ShouldReturnCorrectValue()
     {
         // Arrange
         var reflectionHelper = new ReflectionHelper();
@@ -135,61 +131,103 @@ internal sealed class LambdaStackFrameSerializerTests : TestsBase
             parameterInfoHelper,
             reflectionHelper);
 
+        var stackFrame = RunAndCapture(
+            () => ErrorFactory.AutoPropertyBackingField(),
+            fileName: "MyFile",
+            lineNumber: 10
+        );
+
         // Act
-        var result = serializer.ToString(arguments.StackFrame);
+        var result = serializer.ToString(stackFrame);
 
         // Assert
-        result.Should().Be(arguments.ExpectedToString);
+        Assert.Equal("Action CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.LambdaStackFrameSerializerTests+ErrorFactory.AutoPropertyBackingField in MyFile:line 10", result);
     }
 
-    public sealed class ToStringTestArgs : ToStringArgsTestBase<ToStringTestArgs>
+    [Fact]
+    public void ToString_WhenStackFrameIsAction_ShouldReturnCorrectValue()
     {
-        public static IEnumerable<ToStringTestArgs> Source { get; } =
-        [
-            new()
-            {
-                Label = "AutoPropertyBackingField",
-                ThrowErrorFactory = () => AutoPropertyBackingField!(),
-                FileName = "MyFile",
-                LineNumber = 10,
-                ExpectedToString = "Action CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.LambdaStackFrameSerializerTests+ToStringTestArgs.AutoPropertyBackingField in MyFile:line 10"
-            },
-            new()
-            {
-                Label = "Action",
-                ThrowErrorFactory = () => Action!(),
-                FileName = "MyFile",
-                LineNumber = 10,
-                ExpectedToString = "Action CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.LambdaStackFrameSerializerTests+ToStringTestArgs.Action() in MyFile:line 10"
-            },
-            new()
-            {
-                Label = "Func<T>",
-                ThrowErrorFactory = () => Func!(),
-                FileName = "MyFile",
-                LineNumber = 10,
-                ExpectedToString = "Func<int> CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.LambdaStackFrameSerializerTests+ToStringTestArgs.Func() in MyFile:line 10"
-            },
-            new()
-            {
-                Label = "Action<T>",
-                ThrowErrorFactory = () => ActionWithArgument!(default),
-                FileName = "MyFile",
-                LineNumber = 10,
-                ExpectedToString = "Action<int> CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.LambdaStackFrameSerializerTests+ToStringTestArgs.ActionWithArgument() in MyFile:line 10"
-            },
-        ];
+        // Arrange
+        var reflectionHelper = new ReflectionHelper();
+        var typeAliasProvider = new TypeAliasProvider(reflectionHelper);
+        var parameterInfoHelper = new ParameterInfoHelper(reflectionHelper, typeAliasProvider);
+        var serializer = new LambdaStackFrameSerializer(
+            typeAliasProvider,
+            parameterInfoHelper,
+            reflectionHelper);
 
-        private static Action AutoPropertyBackingField { get; }
+        var stackFrame = RunAndCapture(
+            () => ErrorFactory.Action(),
+            fileName: "MyFile",
+            lineNumber: 10
+        );
+
+        // Act
+        var result = serializer.ToString(stackFrame);
+
+        // Assert
+        Assert.Equal("Action CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.LambdaStackFrameSerializerTests+ErrorFactory.Action() in MyFile:line 10", result);
+    }
+
+    [Fact]
+    public void ToString_WhenStackFrameIsFunc_ShouldReturnCorrectValue()
+    {
+        // Arrange
+        var reflectionHelper = new ReflectionHelper();
+        var typeAliasProvider = new TypeAliasProvider(reflectionHelper);
+        var parameterInfoHelper = new ParameterInfoHelper(reflectionHelper, typeAliasProvider);
+        var serializer = new LambdaStackFrameSerializer(
+            typeAliasProvider,
+            parameterInfoHelper,
+            reflectionHelper);
+
+        var stackFrame = RunAndCapture(
+            () => _ = ErrorFactory.Func(),
+            fileName: "MyFile",
+            lineNumber: 10
+        );
+
+        // Act
+        var result = serializer.ToString(stackFrame);
+
+        // Assert
+        Assert.Equal("Func<int> CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.LambdaStackFrameSerializerTests+ErrorFactory.Func() in MyFile:line 10", result);
+    }
+
+    [Fact]
+    public void ToString_WhenStackFrameIsActionWithArgument_ShouldReturnCorrectValue()
+    {
+        // Arrange
+        var reflectionHelper = new ReflectionHelper();
+        var typeAliasProvider = new TypeAliasProvider(reflectionHelper);
+        var parameterInfoHelper = new ParameterInfoHelper(reflectionHelper, typeAliasProvider);
+        var serializer = new LambdaStackFrameSerializer(
+            typeAliasProvider,
+            parameterInfoHelper,
+            reflectionHelper);
+
+        var stackFrame = RunAndCapture(
+            () => ErrorFactory.ActionWithArgument(default),
+            fileName: "MyFile",
+            lineNumber: 10
+        );
+
+        // Act
+        var result = serializer.ToString(stackFrame);
+
+        // Assert
+        Assert.Equal("Action<int> CoreSharp.EnhancedStackTrace.Tests.Features.Serializers.LambdaStackFrameSerializerTests+ErrorFactory.ActionWithArgument() in MyFile:line 10", result);
+    }
+
+    private static class ErrorFactory
+    {
+        public static Action AutoPropertyBackingField { get; }
             = () => throw new Exception();
 
-        [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
-        private static readonly Action Action = () => throw new Exception();
+        public static readonly Action Action = () => throw new Exception();
 
-        [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
-        private static readonly Func<int> Func = () => throw new Exception();
+        public static readonly Func<int> Func = () => throw new Exception();
 
-        [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
-        private static readonly Action<int> ActionWithArgument = _ => throw new Exception();
+        public static readonly Action<int> ActionWithArgument = _ => throw new Exception();
     }
 }

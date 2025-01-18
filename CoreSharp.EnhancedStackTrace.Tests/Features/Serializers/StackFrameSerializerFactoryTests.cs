@@ -1,25 +1,25 @@
 ﻿using CoreSharp.EnhancedStackTrace.Features.Serializers;
-using NSubstitute;
 using System.Diagnostics;
 
 namespace CoreSharp.EnhancedStackTrace.Tests.Features.Serializers;
 
-internal sealed class StackFrameSerializerFactoryTests : TestsBase
+public sealed class StackFrameSerializerFactoryTests : TestsBase
 {
-    [Test]
+    [Fact]
     public void Create_WhenFrameIsNull_ThrowsArgumentNullException()
     {
         // Arrange
         var factory = new StackFrameSerializerFactory(stackFrameSerializers: []);
 
         // Act
-        Action action = () => factory.Create(frame: null!);
+        void Action()
+            => factory.Create(frame: null!);
 
         // Assert
-        action.Should().ThrowExactly<ArgumentNullException>();
+        Assert.Throws<ArgumentNullException>(Action);
     }
 
-    [Test]
+    [Fact]
     public void Create_WhenSerializerFound_ShouldReturnSerializer()
     {
         // Arrange
@@ -35,10 +35,10 @@ internal sealed class StackFrameSerializerFactoryTests : TestsBase
         var result = factory.Create(frame);
 
         // Assert
-        result.Should().Be(serializer);
+        Assert.Equal(serializer, result);
     }
 
-    [Test]
+    [Fact]
     public void Create_WhenSerializerNotFound_ThrowsNotSupportedException()
     {
         // Arrange
@@ -51,9 +51,10 @@ internal sealed class StackFrameSerializerFactoryTests : TestsBase
             .Returns(false);
 
         // Act
-        Action action = () => factory.Create(new StackFrame());
+        void Action()
+            => factory.Create(new StackFrame());
 
         // Assert
-        action.Should().ThrowExactly<NotSupportedException>();
+        Assert.Throws<NotSupportedException>(Action);
     }
 }

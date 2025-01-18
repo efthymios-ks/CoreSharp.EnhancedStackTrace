@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace CoreSharp.EnhancedStackTrace.Tests.MockTypes;
+namespace Tests.Common.Mocks;
 
 public sealed class MockMemberInfo : MemberInfo
 {
